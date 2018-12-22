@@ -24,4 +24,4 @@ void NodeID::set(unsigned int idToSet)
   EEPROM.write(_memloc,idToSet>>8);
   EEPROM.write(_memloc+1,idToSet&0xff);
 }
-
+#endif
