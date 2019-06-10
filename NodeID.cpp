@@ -13,15 +13,22 @@ NodeID::NodeID(unsigned int eeprom_memory_offset_byte)
   _memloc=eeprom_memory_offset_byte;
 }
 
-unsigned int NodeID::get()
-{
-  unsigned int nodeid=EEPROM.read(_memloc)<<8;
-  return nodeid|=EEPROM.read(_memloc+1); // We store our node ID as an unsigned INT using EEPROM bytes 2 and 3
+unsigned int NodeID::get() {	// NB: teensy unsigned int is 4 bytes...
+#ifdef ARDUINO_ESP8266_NODEMCU // Wemos_D1_ESP8266_NodeMCU_1
+  EEPROM.begin(512);
+#endif
+  unsigned int nodeid=0;
+  //for(unsigned int i=0;i<sizeof(nodeid);i++){nodeid=nodeid<<8;nodeid|=EEPROM.read(_memloc+i);}; // We store our node ID as an unsigned INT using EEPROM bytes 2 and 3
+  for(unsigned int i=0;i<2;i++){nodeid=nodeid<<8;nodeid|=EEPROM.read(_memloc+i);}; // We store our node ID as an unsigned INT using EEPROM bytes 2 and 3
+  return nodeid;
 }
 
-void NodeID::set(unsigned int idToSet)
-{
+void NodeID::set(unsigned int idToSet) {
   EEPROM.write(_memloc,idToSet>>8);
   EEPROM.write(_memloc+1,idToSet&0xff);
+#ifdef ARDUINO_ESP8266_NODEMCU // Wemos_D1_ESP8266_NodeMCU_1  
+  EEPROM.commit();
+#endif  
+
 }
 #endif
